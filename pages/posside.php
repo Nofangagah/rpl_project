@@ -105,7 +105,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary btn-block" onclick="return validatePayment()">PROCEED TO PAYMENT</button>
+                    <button type="submit" class="btn btn-warning btn-block" onclick="return validatePayment()">PROCEED TO PAYMENT</button>
                 </div>
             </div>
         </div>
