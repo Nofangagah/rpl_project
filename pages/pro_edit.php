@@ -49,7 +49,7 @@ $opt .= "</select>";
             <div class="card-header py-3">
               <h4 class="m-2 font-weight-bold text-primary">Edit Product</h4>
             </div>
-            <a href="product.php?action=add" type="button" class="btn btn-primary bg-gradient-primary">Back</a>
+            <a href="product.php?action=add" type="button" class="btn btn-warning bg-gradient-warning ">Back</a>
             <div class="card-body">
 
             <form role="form" method="post" action="pro_edit1.php">

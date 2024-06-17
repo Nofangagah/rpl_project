@@ -12,7 +12,6 @@ $emp = $_POST['employee'];
 $rol = $_POST['role'];
 $today = date("mdGis");
 
-
 $subtotal = floatval($subtotal);
 
 // Calculate tax
@@ -41,8 +40,27 @@ unset($_SESSION['pointofsale']);
 
 $change = $cash - $grandTotal;
 ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script type="text/javascript">
-    alert("Transaction successfully added. Your change is: <?php echo number_format($change); ?>");
-    window.location = "pos.php";
-</script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Success</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <script type="text/javascript">
+        Swal.fire({
+            title: 'Good job!',
+            text: 'Transaction successfully added. Your change is: Rp. <?php echo number_format($change); ?>',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location = "pos.php";
+            }
+        });
+    </script>
+</body>
+</html>

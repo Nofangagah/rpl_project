@@ -8,11 +8,11 @@
             $total += ($product['quantity'] * $product['price']);
         endforeach;
 
-        // Calculate tax
+    
         $tax = $total * 0.11;
         $grandTotal = $total + $tax;
 
-        // DROPDOWN FOR CUSTOMER
+     
         $sql = "SELECT CUST_ID, FIRST_NAME, LAST_NAME FROM customer ORDER BY FIRST_NAME ASC";
         $res = mysqli_query($db, $sql) or die ("Error SQL: $sql");
 
@@ -22,7 +22,7 @@
             $opt .= "<option value='".$row['CUST_ID']."'>".$row['FIRST_NAME'].' '.$row['LAST_NAME']."</option>";
         }
         $opt .= "</select>";
-        // END OF DROP DOWN
+      
     ?>  
     <?php 
         echo "Today's date is : "; 
@@ -78,7 +78,7 @@
     </div>
     <?php endif; ?>       
     <button type="submit" data-target="#posMODAL" data-toggle="modal" class="btn btn-block btn-warning" <?php echo empty($_SESSION['pointofsale']) ? 'disabled' : ''; ?>>Submit</button>
-    <!-- Modal -->
+ 
     <div class="modal fade" id="posMODAL" tabindex="-1" role="dialog" aria-labelledby="POS" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -110,47 +110,72 @@
             </div>
         </div>
     </div>
-    <!-- END OF Modal -->
+  
 </form>
-</div> <!-- END OF CARD BODY -->
+</div> 
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 function validatePayment() {
     var cash = parseFloat(document.getElementById('txtNumber').value);
     var total = <?php echo $grandTotal; ?>;
-
+    var isStockSufficient = true;
     if (cash < total) {
-        alert("Insufficient cash. Payment failed.");
+        Swal.fire({
+            title: 'Payment Failed',
+            text: 'Insufficient cash. Payment failed.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
         return false;
     }
-
-    // Log to see the data being sent
-    console.log("Sending data to update_inventory.php");
-
-    // AJAX request to update inventory after successful payment
+   
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "update_inventory.php", true);
+    xhr.open("POST", "check_stock.php", false); // Use synchronous request
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4) {
-            console.log("Response received: " + xhr.responseText);
-            if (xhr.status == 200) {
-                // Handle response if necessary
-                console.log("Success: " + xhr.responseText);
-            } else {
-                console.log("Error: " + xhr.status);
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            var response = JSON.parse(xhr.responseText);
+            if (!response.success) {
+                isStockSufficient = false;
+                alert(response.message);
             }
         }
     };
 
     var params = "products=<?php echo urlencode(json_encode($_SESSION['pointofsale'])); ?>";
-    console.log("Params: " + params);
     xhr.send(params);
+
+    if (!isStockSufficient) {
+        return false;
+    }
+
+ 
+    console.log("Sending data to update_inventory.php");
+
+ 
+    var xhrUpdate = new XMLHttpRequest();
+    xhrUpdate.open("POST", "update_inventory.php", true);
+    xhrUpdate.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhrUpdate.onreadystatechange = function() {
+        if (xhrUpdate.readyState == 4) {
+            console.log("Response received: " + xhrUpdate.responseText);
+            if (xhrUpdate.status == 200) {
+                
+                console.log("Success: " + xhrUpdate.responseText);
+            } else {
+                console.log("Error: " + xhrUpdate.status);
+            }
+        }
+    };
+
+    xhrUpdate.send(params);
 
     return true;
 }
+
 
 
 function isNumberKey(evt) {

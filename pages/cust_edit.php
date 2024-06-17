@@ -36,7 +36,7 @@ if ($Aa=='User'){
             <center><div class="card shadow mb-4 col-xs-12 col-md-8 border-bottom-primary">
             <div class="card-header py-3">
               <h4 class="m-2 font-weight-bold text-primary">Edit Customer</h4>
-            </div><a  type="button" class="btn btn-primary bg-gradient-primary btn-block" href="customer.php?"> <i class="fas fa-flip-horizontal fa-fw fa-share"></i> Back </a>
+            </div><a  type="button" class="btn btn-warning bg-gradient-warning btn-block" href="customer.php?"> <i class="fas fa-flip-horizontal fa-fw fa-share"></i> Back </a>
             <div class="card-body">
          
             <form role="form" method="post" action="cust_edit1.php">

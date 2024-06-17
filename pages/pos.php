@@ -9,70 +9,65 @@ function formatRupiah($number)
   return "Rp " . number_format($number, 0, ',', '.');
 }
 
-
 $product_ids = array();
 
-
 if (filter_input(INPUT_POST, 'addpos')) {
+  $product_id = filter_input(INPUT_GET, 'id');
+  $quantity = filter_input(INPUT_POST, 'quantity');
 
-  if (isset($_SESSION['pointofsale'])) {
+ 
+  $query = "SELECT * FROM product WHERE PRODUCT_ID='$product_id'";
+  $result = mysqli_query($db, $query);
+  $product = mysqli_fetch_assoc($result);
 
-    $count = count($_SESSION['pointofsale']);
+  if ($product['ON_HAND'] >= $quantity) {
+    if (isset($_SESSION['pointofsale'])) {
+      $count = count($_SESSION['pointofsale']);
 
-    // Mendapatkan daftar ID produk yang sudah ada di keranjang
-    $product_ids = array_column($_SESSION['pointofsale'], 'id');
+     
+      $product_ids = array_column($_SESSION['pointofsale'], 'id');
 
-    // Cek apakah produk yang akan ditambahkan sudah ada di keranjang
-    if (!in_array(filter_input(INPUT_POST, 'id'), $product_ids)) {
-      // Jika belum, tambahkan produk baru ke keranjang
-      $_SESSION['pointofsale'][$count] = array(
+    
+      if (!in_array(filter_input(INPUT_POST, 'id'), $product_ids)) {
+        
+        $_SESSION['pointofsale'][$count] = array(
+          'id' => filter_input(INPUT_GET, 'id'),
+          'name' => filter_input(INPUT_POST, 'name'),
+          'price' => filter_input(INPUT_POST, 'price'),
+          'quantity' => filter_input(INPUT_POST, 'quantity')
+        );
+      } else {
+      
+        foreach ($_SESSION['pointofsale'] as &$product) {
+          if ($product['id'] == filter_input(INPUT_POST, 'id')) {
+            $product['quantity'] += filter_input(INPUT_POST, 'quantity');
+          }
+        }
+      }
+    } else {
+      
+      $_SESSION['pointofsale'][0] = array(
         'id' => filter_input(INPUT_GET, 'id'),
         'name' => filter_input(INPUT_POST, 'name'),
         'price' => filter_input(INPUT_POST, 'price'),
         'quantity' => filter_input(INPUT_POST, 'quantity')
       );
-    } else {
-      // Jika produk sudah ada di keranjang, tambahkan quantitynya
-      foreach ($_SESSION['pointofsale'] as &$product) {
-        if ($product['id'] == filter_input(INPUT_POST, 'id')) {
-          $product['quantity'] += filter_input(INPUT_POST, 'quantity');
-          $product['price'] += filter_input(INPUT_POST, 'price');
-        } else {
-          $_SESSION['pointofsale'][$count] = array(
-            'id' => filter_input(INPUT_GET, 'id'),
-            'name' => filter_input(INPUT_POST, 'name'),
-            'price' => filter_input(INPUT_POST, 'price'),
-            'quantity' => filter_input(INPUT_POST, 'quantity')
-          );
-        }
-      }
     }
   } else {
-    // Jika session 'pointofsale' belum ada, buat session dan tambahkan produk pertama ke dalamnya
-    $_SESSION['pointofsale'][0] = array(
-      'id' => filter_input(INPUT_GET, 'id'),
-      'name' => filter_input(INPUT_POST, 'name'),
-      'price' => filter_input(INPUT_POST, 'price'),
-      'quantity' => filter_input(INPUT_POST, 'quantity')
-    );
+    echo "<script>alert('Stock is insufficient. Only " . $product['ON_HAND'] . " left in stock.');</script>";
   }
 
-  // Setelah menambahkan produk ke keranjang, redirect ke halaman pos.php
+  
   header("Location: pos.php");
   exit();
 }
 
 if (filter_input(INPUT_GET, 'action') == 'delete') {
-
   $delete_id = filter_input(INPUT_GET, 'id');
 
-
   foreach ($_SESSION['pointofsale'] as $key => $product) {
-  
     if ($product['id'] == $delete_id) {
-  
       unset($_SESSION['pointofsale'][$key]);
-    
       break;
     }
   }
@@ -80,7 +75,6 @@ if (filter_input(INPUT_GET, 'action') == 'delete') {
   header("Location: pos.php");
   exit();
 }
-
 
 function pre_r($array)
 {
@@ -113,10 +107,7 @@ function pre_r($array)
           </li>
         </ul>
 
-
-
         <?php include 'postabpane.php'; ?>
-
 
         <div style="clear:both"></div>
         <br />
@@ -143,11 +134,8 @@ function pre_r($array)
                       <th width="5%">Action</th>
                     </tr>
                     <?php
-
                     if (!empty($_SESSION['pointofsale'])) :
-
                       $total = 0;
-
                       foreach ($_SESSION['pointofsale'] as $key => $product) :
                     ?>
                         <tr>
@@ -155,17 +143,14 @@ function pre_r($array)
                             <input type="hidden" name="name[]" value="<?php echo $product['name']; ?>">
                             <?php echo $product['name']; ?>
                           </td>
-
                           <td>
                             <input type="hidden" name="quantity[]" value="<?php echo $product['quantity']; ?>">
                             <?php echo $product['quantity']; ?>
                           </td>
-
                           <td>
                             <input type="hidden" name="price[]" value="<?php echo $product['price']; ?>">
                             <?php echo formatRupiah($product['price'],) ?>
                           </td>
-
                           <td>
                             <input type="hidden" name="total" value="<?php echo $product['quantity'] * $product['price']; ?>">
                             <?php echo formatRupiah($product['quantity'] * $product['price'],); ?>
@@ -180,11 +165,7 @@ function pre_r($array)
                         $total = $total + ($product['quantity'] * $product['price']);
                       endforeach;
                       ?>
-
-
-                    <?php
-                    endif;
-                    ?>
+                    <?php endif; ?>
                   </table>
               </div>
             </div>
