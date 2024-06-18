@@ -16,6 +16,7 @@ foreach ($data as $product) {
     $response['success'] = false;
     $response['message'] = "Stok untuk produk ID $product_id tidak mencukupi.";
     break;
+    echo json_encode($response);
   }
 }
 
