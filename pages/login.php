@@ -72,9 +72,7 @@
                     </div>
                     <button class="btn btn-warning btn-user btn-block" type="submit" name="btnlogin">Login</button>
                     <hr>
-                    <div class="text-center">
-                      <a class="small" href="register.php">Create an Account!</a>
-                    </div>
+                   
                   </form>
                 </div>
               </div>
